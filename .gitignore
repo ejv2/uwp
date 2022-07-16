@@ -1,0 +1,8 @@
+# compile artifacts
+uwp-*
+*.o
+
+# debug
+compile_commands.json
+.gdb-history
+.cache/

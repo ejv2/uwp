@@ -1,0 +1,44 @@
+uwp - MicroWordPress
+=====================
+
+"uwp" or "µwp" is an intentionally small but powerful remote admin tool for
+wordpress. It allows for the entire site to be run simply from your terminal
+with a minimal interface which is designed to sit well with the rest of your
+UNIX system. 
+
+uwp is minimal and is useful in both scripting, automation and simply working
+on WordPress sites from the comfort of your own system.
+
+Requirements
+------------
+
+uwp requires:
+	- libcurl
+	- a c99 compiler
+	- a POSIX shell
+
+for best experience:
+	- gpg and password-store
+	- a working internet connection
+	- the environment variables $BROWSER, $PAGER and $EDITOR set
+	- a computer better than a toaster
+
+Running
+-------
+
+uwp in of itself is simply a wrapper which can run other, more
+specialised programs for specific tasks, but with certain global options.
+
+Example:
+	uwp help		--> executes /usr/bin/uwp-help
+	uwp post "New Post"	--> executes /usr/bin/uwp-post "New Post"
+
+This is loosely inspired by the architecture of git, with the difference that
+you may run these "plumbing" programs directly, rather than through one binary.
+
+Configuration
+-------------
+
+Much of the configuration of uwp is done through config.h, but sites can be
+configured via the file ".config/uwp/sites" file, format of which is a simple
+TSV file. Fields are documented separately.

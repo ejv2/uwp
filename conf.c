@@ -5,7 +5,9 @@
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
+#ifndef __OpenBSD__
 #include <bsd/readpassphrase.h>
+#endif
 
 #include "util.h"
 #include "conf.h"

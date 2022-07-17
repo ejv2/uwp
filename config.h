@@ -9,11 +9,11 @@
  * If password starts with "pass:", password store is used with the following
  * password name.
  *
- * If password is "ask:", you are asked on each invocation.
+ * If password is "ask", you are asked on each invocation.
  */
 static const Site sites[] = {
 	/* Name		URL					Username	Password	*/
-	{"ejm",		"https://ethanjmarshall.co.uk",		"EMarshall",	"notmypassword" },
+	{"ejm",		"https://ethanjmarshall.co.uk",		"EMarshall",	"ask" },
 };
 
 /* Location of extra sites TSV file */

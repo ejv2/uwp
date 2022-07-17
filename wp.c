@@ -1,10 +1,13 @@
 /* See LICENSE for copyright and license details. */
 
 #include <curl.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "json.h"
+#include "util.h"
+#include "conf.h"
 #include "wp.h"
 
 static int curlready = 0;
@@ -45,25 +48,30 @@ wp_format_endpoint(WP *wp, const char *endpoint)
 }
 
 int
-wp_init(WP *wp, const char *site)
+wp_init(WP *wp, const Site *site)
 {
 	int slen, alen;
 
 	if (!curlready) {
 		curl_global_init(CURL_GLOBAL_ALL);
+		atexit(curl_global_cleanup);
 		curlready = 1;
 	}
 	wp->conn = curl_easy_init();
 	curl_easy_setopt(wp->conn, CURLOPT_WRITEDATA, wp);
 	curl_easy_setopt(wp->conn, CURLOPT_WRITEFUNCTION, &wp_write);
 	curl_easy_setopt(wp->conn, CURLOPT_COOKIEFILE, "");
+	curl_easy_setopt(
+		wp->conn, CURLOPT_USERAGENT,
+		wp_fake_useragent); /* Required because some paranoid server ops ban curl */
 
-	slen = strlen(site), alen = strlen(wp_api);
+	slen = strlen(site->baseurl), alen = strlen(wp_api);
 	wp->site = site;
 	wp->url = malloc(sizeof(char) * slen + sizeof(char) * alen + 1);
-	strcpy(wp->url, wp->site);
+	strcpy(wp->url, wp->site->baseurl);
 	strcat(wp->url, wp_api);
 
+	wp->auth = 0;
 	wp->buflen = 0;
 	wp->buf = NULL;
 
@@ -71,12 +79,76 @@ wp_init(WP *wp, const char *site)
 }
 
 int
-wp_auth(WP *wp, const char *usr, const char *pw)
+wp_auth(WP *wp)
 {
-	if (!wp || !usr || !pw)
+	CURLcode res;
+	long status;
+	int ret = 0;
+	int fieldlen;
+	char *ep, *fields;
+	char *pw, *safepw;
+
+	if (!wp)
 		return 0;
 
-	return 1;
+	ep = malloc(sizeof(char) *
+		    (strlen(wp->site->baseurl) + strlen(wp_login) + 1));
+	if (!ep)
+		return 0;
+
+	strcpy(ep, wp->site->baseurl);
+	strcat(ep, wp_login);
+
+	pw = site_pw(wp->site);
+	if (!pw)
+		goto free_ep;
+	safepw = curl_easy_escape(wp->conn, pw, strlen(pw));
+
+	fieldlen = 0;
+	for (int i = 0; i < LENGTH(wp_login_params); i++) {
+		fieldlen += strlen(wp_login_params[i]);
+	}
+
+	/* Length of all parameters + length of POST param names+markup (13 bytes */
+	fields = malloc(sizeof(char) * (strlen(wp->site->usr) + strlen(safepw) +
+					fieldlen + 13));
+	if (!fields)
+		goto free_ep;
+
+	sprintf(fields, "%s=%s&%s=%s&%s=forever", wp_login_params[0],
+		wp->site->usr, wp_login_params[1], safepw, wp_login_params[2]);
+
+	curl_easy_setopt(wp->conn, CURLOPT_CUSTOMREQUEST, "POST");
+	curl_easy_setopt(wp->conn, CURLOPT_URL, ep);
+	curl_easy_setopt(wp->conn, CURLOPT_POSTFIELDS, fields);
+
+	res = curl_easy_perform(wp->conn);
+	curl_easy_getinfo(wp->conn, CURLINFO_RESPONSE_CODE, &status);
+
+	/* If login succeeded:
+	 * 	- WordPress redirects us (HTTP 302) to /wp-admin/
+	 * 	- Curl reports success
+	 * 	- Login cookies now set properly
+	 */
+	if (status != 302 || res != CURLE_OK) {
+		fprintf(stderr, "uwp: login authentication failed\n");
+		goto free_fields;
+	}
+
+	wp->auth = 1;
+
+free_fields:
+	free(fields);
+free_pw:
+	free(pw);
+	free(safepw);
+free_ep:
+	free(ep);
+cleanup:
+	curl_easy_setopt(wp->conn, CURLOPT_CUSTOMREQUEST, NULL);
+	curl_easy_setopt(wp->conn, CURLOPT_POSTFIELDS, NULL);
+	curl_easy_setopt(wp->conn, CURLOPT_HTTPGET, 1);
+	return ret;
 }
 
 /*

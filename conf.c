@@ -5,6 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
+#include <bsd/readpassphrase.h>
 
 #include "conf.h"
 #include "util.h"
@@ -18,35 +19,25 @@ walk_back(SiteList **list)
 	}
 }
 
-static const char *
+static char *
 pwstore(const Site *s)
 {
 	/* TODO */
 	return strdup("");
 }
 
-static const char *
+static char *
 pwask(const Site *s)
 {
-	char *buf, *i;
-	buf = malloc(sizeof(char) * BUFSIZ);
+	char *pw;
+	char prompt[1024];
 
-	fprintf(stderr, "Password for %s@%s:", s->usr, s->name);
-	if (!fgets(buf, BUFSIZ, stdin)) {
-		perror("password input");
-		return NULL;
-	}
+	sprintf(prompt, "Password for %s@%s:", s->usr, s->name);
+	pw = malloc(sizeof(char) * BUFSIZ);
+	readpassphrase(prompt, pw, BUFSIZ, RPP_ECHO_OFF | RPP_REQUIRE_TTY);
 
-	/* Strip newline */
-	i = buf;
-	for (;;) {
-		if (*i == 0) {
-			*(--i) = 0;
-			break;
-		}
-	}
-
-	return strdup(buf);
+	/* Not handling NULL error return, as pwask returns NULL on error anyway */
+	return pw;
 }
 
 static void
@@ -79,7 +70,7 @@ parse_config(SiteList *l)
 		nl->next = NULL;
 		nl->s = s;
 
-		buf[strlen(buf)-1] = 0;
+		buf[strlen(buf) - 1] = 0;
 		for (sep = strtok(buf, "\t"); sep; sep = strtok(NULL, "\t")) {
 			switch (field++) {
 			case 1:
@@ -108,7 +99,7 @@ insert:
 	chdir(cwd);
 }
 
-const char *
+char *
 site_pw(const Site *s)
 {
 	if (!s)
@@ -176,4 +167,18 @@ sites_unload(SiteList *list)
 		free(cur);
 		cur = bu;
 	} while (bu);
+}
+
+const Site *
+site_lookup(SiteList *list, const char *name)
+{
+	SiteList *cur = list;
+	while (cur) {
+		if (strcmp(cur->s->name, name) == 0)
+			return cur->s;
+
+		cur = (SiteList *)cur->next;
+	}
+
+	return NULL;
 }

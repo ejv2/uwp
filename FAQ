@@ -1,0 +1,38 @@
+Frequently Asked Questions
+==========================
+
+This isn't universal windows platform!
+--------------------------------------
+
+Go figure. If this confuses you too much, feel free to use µwp instead.
+
+'login authentication failed'
+-----------------------------
+
+It goes without saying to check that:
+	- You have configured the site properly
+	- Your credentials are right
+	- Your site is running WordPress
+	- The admin dashboard and logins are enabled
+	- The site is up
+
+However, some WordPress plugins (like Jetpack and recaptcha) require you to
+complete verification before allowing logins. Try logging in manually and then
+using uwp again. These tools usually cache the verification for some time.
+
+No output from tools
+--------------------
+
+uwp tools follow the UNIX ideal that "when a program has nothing interesting or
+surprising to say, it says nothing at all". If you need to detect success, uwp
+always returns a corresponding return code.
+
+So, to detect a successful authentication:
+	uwp test mysite && echo "success"
+Conversely for a failure:
+	uwp test mysite || echo "failed"
+
+Storing passwords in plain text is insecure
+-------------------------------------------
+
+Use pass(1) and put pass:<password-name> as the password.

@@ -1,5 +1,5 @@
 #!/bin/sh
 
 prog="uwp-${1:-help}"
-args=$(echo "$@" | tr -d '\/' | sed "s/$(echo "$1" | tr -d '\/') \?//")
+args=$(echo "$@" | sed "s/$(echo "$1" | tr -d '\/') \?//")
 exec "$prog" $args

@@ -9,9 +9,9 @@ PROGS = uwp-help uwp-test uwp-sites
 
 COMMON  = copts.c wp.c conf.c
 OCOMMON = $(COMMON:.c=.o)
-HCOMMON = $(COMMON:.c=.h) json.h util.h
+HCOMMON = $(COMMON:.c=.h) json.h util.h config.h
 
-PREQ = $(OCOMMON) $(MAIN) config.h
+PREQ = $(OCOMMON) $(MAIN)
 
 all: $(PROGS)
 

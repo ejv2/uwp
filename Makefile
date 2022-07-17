@@ -44,4 +44,8 @@ uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/bin/uwp
 	rm -f $(DESTDIR)$(PREFIX)/bin/uwp-*
 
-.PHONY: all clean install uninstall
+compdb:
+	$(MAKE) clean
+	compiledb $(MAKE) CC=cc
+
+.PHONY: all clean install uninstall compdb

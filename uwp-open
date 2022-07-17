@@ -1,0 +1,8 @@
+#!/bin/sh
+# uwp-open - open a UWP site in your browser
+#
+# Sites are sourced from the config file and are searched by name (regex supported)
+# All matching sites will be opened
+# $1 - name of site
+
+uwp sites | grep -E "^$1" | cut -f2 | xargs "${BROWSER:-firefox}"

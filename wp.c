@@ -53,6 +53,7 @@ int wp_init(WP *wp, const char *site)
 	wp->conn = curl_easy_init();
 	curl_easy_setopt(wp->conn, CURLOPT_WRITEDATA, wp);
 	curl_easy_setopt(wp->conn, CURLOPT_WRITEFUNCTION, &wp_write);
+	curl_easy_setopt(wp->conn, CURLOPT_COOKIEFILE, "");
 
 	slen = strlen(site), alen = strlen(wp_api);
 	wp->site = site;

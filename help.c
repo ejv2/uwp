@@ -8,6 +8,7 @@
  * The best way to understand everything is to read the main() of each tool.
  */
 
+#include <curl.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -47,7 +48,10 @@ main(int argc, char **argv)
 			puts(credits);
 		else if (strcmp(argv[1], "license") == 0)
 			puts(license);
-		else {
+		else if (strcmp(argv[1], "version") == 0) {
+			puts("uwp v"VERSION);
+			puts(curl_version());
+		} else {
 			fprintf(stderr, "%s: unknown option '%s'\n", argv[0],
 				argv[1]);
 			return 1;

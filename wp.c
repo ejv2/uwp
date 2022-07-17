@@ -9,7 +9,8 @@
 
 static int curlready = 0;
 
-static size_t wp_write(char *ptr, size_t size, size_t nmemb, void *userdata)
+static size_t
+wp_write(char *ptr, size_t size, size_t nmemb, void *userdata)
 {
 	WP *wp = (WP *)userdata;
 	if (!wp)
@@ -28,7 +29,8 @@ static size_t wp_write(char *ptr, size_t size, size_t nmemb, void *userdata)
 	return size * nmemb;
 }
 
-static char *wp_format_endpoint(WP *wp, const char *endpoint)
+static char *
+wp_format_endpoint(WP *wp, const char *endpoint)
 {
 	char *work;
 	int len, slen;
@@ -42,7 +44,8 @@ static char *wp_format_endpoint(WP *wp, const char *endpoint)
 	return work;
 }
 
-int wp_init(WP *wp, const char *site)
+int
+wp_init(WP *wp, const char *site)
 {
 	int slen, alen;
 
@@ -67,6 +70,15 @@ int wp_init(WP *wp, const char *site)
 	return 1;
 }
 
+int
+wp_auth(WP *wp, const char *usr, const char *pw)
+{
+	if (!wp || !usr || !pw)
+		return 0;
+
+	return 1;
+}
+
 /*
  * Sends a raw request to the specified endpoint, which must begin with a
  * forward slash.
@@ -74,7 +86,8 @@ int wp_init(WP *wp, const char *site)
  * Parsed JSON returned is valid until freed (must be freed by caller), but
  * original text buffer is overwritten on next call to wp_request.
  */
-WPResponse wp_request(WP *wp, const char *endpoint)
+WPResponse
+wp_request(WP *wp, const char *endpoint)
 {
 	WPResponse resp;
 	CURLcode c;
@@ -102,7 +115,8 @@ cleanup:
 	return resp;
 }
 
-void wp_destroy(WP *wp)
+void
+wp_destroy(WP *wp)
 {
 	if (!wp)
 		return;

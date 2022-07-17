@@ -39,7 +39,8 @@ static const char *license =
 	"the Free Software Foundation, either version 3 of the License, or\n"
 	"(at your option) any later version";
 
-int main(int argc, char **argv)
+int
+main(int argc, char **argv)
 {
 	if (argc > 1) {
 		if (strcmp(argv[1], "credits") == 0)

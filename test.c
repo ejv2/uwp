@@ -10,7 +10,8 @@
 /*
  * uwp-test: test if an installation is responding to REST API requests
  */
-int main(int argc, char **argv)
+int
+main(int argc, char **argv)
 {
 	WP wp;
 	WPResponse resp;
@@ -38,8 +39,7 @@ int main(int argc, char **argv)
 			break;
 		}
 
-		fprintf(stderr,
-			"%s: could not get '/posts/' endpoint: %s\n",
+		fprintf(stderr, "%s: could not get '/posts/' endpoint: %s\n",
 			argv[0], reason);
 
 		/* NOTE: intentionally not freeing memory, as we do not know how far it was allocated */

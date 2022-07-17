@@ -10,20 +10,23 @@
 #include "util.h"
 #include "config.h"
 
-static void walk_back(SiteList **list)
+static void
+walk_back(SiteList **list)
 {
 	while ((*list)->prev) {
 		*list = (SiteList *)((*list)->prev);
 	}
 }
 
-static const char *pwstore(const Site *s)
+static const char *
+pwstore(const Site *s)
 {
 	/* TODO */
 	return strdup("");
 }
 
-static const char *pwask(const Site *s)
+static const char *
+pwask(const Site *s)
 {
 	char *buf, *i;
 	buf = malloc(sizeof(char) * BUFSIZ);
@@ -46,7 +49,8 @@ static const char *pwask(const Site *s)
 	return strdup(buf);
 }
 
-static void parse_config(SiteList *l)
+static void
+parse_config(SiteList *l)
 {
 	FILE *f;
 	int field;
@@ -102,7 +106,8 @@ insert:
 	chdir(cwd);
 }
 
-const char *site_pw(const Site *s)
+const char *
+site_pw(const Site *s)
 {
 	if (!s)
 		return NULL;
@@ -116,17 +121,20 @@ const char *site_pw(const Site *s)
 	return strdup(s->pw);
 }
 
-int site_pwstore(const Site *s)
+int
+site_pwstore(const Site *s)
 {
 	return strncmp(pwstore_prefix, s->pw, LENGTH(pwstore_prefix) - 1) == 0;
 }
 
-int site_pwask(const Site *s)
+int
+site_pwask(const Site *s)
 {
 	return strcmp(ask_password, s->pw) == 0;
 }
 
-SiteList *sites_load()
+SiteList *
+sites_load()
 {
 	int i;
 	SiteList *root = NULL;
@@ -151,7 +159,8 @@ SiteList *sites_load()
 	return root;
 }
 
-void sites_unload(SiteList *list)
+void
+sites_unload(SiteList *list)
 {
 	SiteList *cur, *bu;
 

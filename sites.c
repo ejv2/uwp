@@ -12,7 +12,8 @@
  * uwp-sites: show all sites that uwp knows about along with a summary of
  * configuration for each. Passwords are never shown in plain text.
  */
-int main(int argc, char **argv)
+int
+main(int argc, char **argv)
 {
 	const Site *s;
 	SiteList *sites, *cur;

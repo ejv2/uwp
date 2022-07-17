@@ -7,8 +7,8 @@
 #include <limits.h>
 #include <bsd/readpassphrase.h>
 
-#include "conf.h"
 #include "util.h"
+#include "conf.h"
 #include "config.h"
 
 static void
@@ -22,8 +22,31 @@ walk_back(SiteList **list)
 static char *
 pwstore(const Site *s)
 {
-	/* TODO */
-	return strdup("");
+	FILE *proc;
+	char *pw, *pwname;
+	char cmd[LENGTH(passcmd) + strlen(s->pw) + 3];
+
+	pwname = strchr(s->pw, ':')+1;
+	sprintf(cmd, "%s '%s'", passcmd, pwname);
+	proc = popen(cmd, "r");
+	if (!proc)
+		return NULL;
+
+	pw = malloc(sizeof(char) * BUFSIZ);
+	if (!pw) {
+		goto cleanup;
+	}
+
+	if (!fgets(pw, BUFSIZ, proc)) {
+		free(pw);
+		pw = NULL;
+		goto cleanup;
+	}
+	strip_newline(pw);
+
+cleanup:
+	pclose(proc);
+	return pw;
 }
 
 static char *

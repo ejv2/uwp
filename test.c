@@ -55,7 +55,9 @@ main(int argc, char **argv)
 	}
 
 	wp_init(&wp, &s);
-	wp_auth(&wp);
+	if (!wp_auth(&wp))
+		return 1;
+
 	resp = wp_request(&wp, "/posts/");
 
 	if (resp.success < 0) {

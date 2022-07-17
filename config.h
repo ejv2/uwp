@@ -13,14 +13,13 @@
  */
 static const Site sites[] = {
 	/* Name		URL					Username	Password	*/
-	{"ejm",		"https://ethanjmarshall.co.uk",		"EMarshall",	"ask" },
+	{"ejm",		"https://ethanjmarshall.co.uk",		"EMarshall",	"pass:Personal Website" },
 };
 
 /* Location of extra sites TSV file */
 static const char *extra_sites = ".config/uwp/sites";
 
 /*
- * Directory location of password store relative to $HOME
- * NOTE: Trailing slash is required
+ * The command to run to extract a named password
  */
-static const char *pass_store = ".local/share/pass/";
+static const char passcmd[] = "/usr/bin/pass show";

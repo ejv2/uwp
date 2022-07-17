@@ -100,8 +100,10 @@ wp_auth(WP *wp)
 	strcat(ep, wp_login);
 
 	pw = site_pw(wp->site);
-	if (!pw)
+	if (!pw) {
+		fprintf(stderr, "uwp: invalid password\n");
 		goto free_ep;
+	}
 	safepw = curl_easy_escape(wp->conn, pw, strlen(pw));
 
 	fieldlen = 0;
@@ -135,7 +137,7 @@ wp_auth(WP *wp)
 		goto free_fields;
 	}
 
-	wp->auth = 1;
+	wp->auth = ret = 1;
 
 free_fields:
 	free(fields);

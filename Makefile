@@ -36,7 +36,7 @@ $(OCOMMON): $(HCOMMON)
 install: $(PROGS)
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
 	cp -f uwp $(DESTDIR)$(PREFIX)/bin
-	cp -f $(PROGS) $(DESTDIR)$(PREFIX)/bin
+	cp -f uwp-* $(DESTDIR)$(PREFIX)/bin
 	chmod 755 $(DESTDIR)$(PREFIX)/bin/uwp
 	chmod 755 $(DESTDIR)$(PREFIX)/bin/uwp-*
 

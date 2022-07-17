@@ -78,6 +78,8 @@ parse_config(SiteList *l)
 		nl->prev = (struct SiteList *)l;
 		nl->next = NULL;
 		nl->s = s;
+
+		buf[strlen(buf)-1] = 0;
 		for (sep = strtok(buf, "\t"); sep; sep = strtok(NULL, "\t")) {
 			switch (field++) {
 			case 1:

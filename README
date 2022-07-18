@@ -4,7 +4,7 @@ uwp - MicroWordPress
 "uwp" or "µwp" is an intentionally small but powerful remote admin tool for
 wordpress. It allows for the entire site to be run simply from your terminal
 with a minimal interface which is designed to sit well with the rest of your
-UNIX system. 
+UNIX system.
 
 uwp is minimal and is useful in both scripting, automation and simply working
 on WordPress sites from the comfort of your own system.

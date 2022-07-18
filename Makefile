@@ -7,7 +7,7 @@ include config.mk
 MAIN  = uwp
 PROGS = uwp-help uwp-test uwp-sites
 
-COMMON  = copts.c wp.c conf.c
+COMMON  = wp.c conf.c
 OCOMMON = $(COMMON:.c=.o)
 HCOMMON = $(COMMON:.c=.h) json.h arg.h util.h config.h
 

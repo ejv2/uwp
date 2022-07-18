@@ -8,7 +8,6 @@
 #include "util.h"
 #include "conf.h"
 #include "wp.h"
-#include "config.h"
 #include <string.h>
 
 /*

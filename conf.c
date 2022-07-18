@@ -157,7 +157,6 @@ sites_load()
 	int i;
 	SiteList *root = NULL;
 	SiteList *cur = NULL, *prev;
-	const char *path = extra_sites;
 
 	/* first load up in-memory config array */
 	for (i = 0; i < LENGTH(sites); i++) {

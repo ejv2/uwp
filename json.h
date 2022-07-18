@@ -1,65 +1,14 @@
-/*
-   The latest version of this library is available on GitHub;
-   https://github.com/sheredom/json.h.
-*/
-
-/*
-   This is free and unencumbered software released into the public domain.
-
-   Anyone is free to copy, modify, publish, use, compile, sell, or
-   distribute this software, either in source code form or as a compiled
-   binary, for any purpose, commercial or non-commercial, and by any
-   means.
-
-   In jurisdictions that recognize copyright laws, the author or authors
-   of this software dedicate any and all copyright interest in the
-   software to the public domain. We make this dedication for the benefit
-   of the public at large and to the detriment of our heirs and
-   successors. We intend this dedication to be an overt act of
-   relinquishment in perpetuity of all present and future rights to this
-   software under copyright law.
-
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-   IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
-   OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-   ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-   OTHER DEALINGS IN THE SOFTWARE.
-
-   For more information, please refer to <http://unlicense.org/>.
-*/
+/* See LICENSE for copyright and license details.
+ *
+ * This is a modified version of json.h, a public domain library available at
+ * https://github.com/sheredom/json.h.
+ */
 
 #ifndef SHEREDOM_JSON_H_INCLUDED
 #define SHEREDOM_JSON_H_INCLUDED
 
-#if defined(_MSC_VER)
-#pragma warning(push)
-
-/* disable warning: no function prototype given: converting '()' to '(void)' */
-#pragma warning(disable : 4255)
-
-/* disable warning: '__cplusplus' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif' */
-#pragma warning(disable : 4668)
-
-/* disable warning: 'bytes padding added after construct' */
-#pragma warning(disable : 4820)
-#endif
-
 #include <stddef.h>
 #include <string.h>
-
-#if defined(_MSC_VER)
-#define json_weak __inline
-#elif defined(__clang__) || defined(__GNUC__)
-#define json_weak __attribute__((weak))
-#else
-#error Non clang, non gcc, non MSVC compiler found!
-#endif
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 struct json_value_s;
 struct json_parse_result_s;
@@ -141,7 +90,7 @@ enum json_parse_flags_e {
 /* Parse a JSON text file, returning a pointer to the root of the JSON
  * structure. json_parse performs 1 call to malloc for the entire encoding.
  * Returns 0 if an error occurred (malformed JSON input, or malloc failed). */
-json_weak struct json_value_s *json_parse(const void *src, size_t src_size);
+struct json_value_s *json_parse(const void *src, size_t src_size);
 
 /* Parse a JSON text file, returning a pointer to the root of the JSON
  * structure. json_parse performs 1 call to alloc_func_ptr for the entire
@@ -149,7 +98,7 @@ json_weak struct json_value_s *json_parse(const void *src, size_t src_size);
  * failed). If an error occurred, the result struct (if not NULL) will explain
  * the type of error, and the location in the input it occurred. If
  * alloc_func_ptr is null then malloc is used. */
-json_weak struct json_value_s *
+struct json_value_s *
 json_parse_ex(const void *src, size_t src_size, size_t flags_bitset,
               void *(*alloc_func_ptr)(void *, size_t), void *user_data,
               struct json_parse_result_s *result);
@@ -157,13 +106,13 @@ json_parse_ex(const void *src, size_t src_size, size_t flags_bitset,
 /* Extracts a value and all the data that makes it up into a newly created
  * value. json_extract_value performs 1 call to malloc for the entire encoding.
  */
-json_weak struct json_value_s *
+struct json_value_s *
 json_extract_value(const struct json_value_s *value);
 
 /* Extracts a value and all the data that makes it up into a newly created
  * value. json_extract_value performs 1 call to alloc_func_ptr for the entire
  * encoding. If alloc_func_ptr is null then malloc is used. */
-json_weak struct json_value_s *
+struct json_value_s *
 json_extract_value_ex(const struct json_value_s *value,
                       void *(*alloc_func_ptr)(void *, size_t), void *user_data);
 
@@ -172,7 +121,7 @@ json_extract_value_ex(const struct json_value_s *value,
  * json_write_minified performs 1 call to malloc for the entire encoding. Return
  * 0 if an error occurred (malformed JSON input, or malloc failed). The out_size
  * parameter is optional as the utf-8 string is null terminated. */
-json_weak void *json_write_minified(const struct json_value_s *value,
+void *json_write_minified(const struct json_value_s *value,
                                     size_t *out_size);
 
 /* Write out a pretty JSON utf-8 string. This string is encoded such that the
@@ -184,38 +133,38 @@ json_weak void *json_write_minified(const struct json_value_s *value,
  * json_write_pretty performs 1 call to malloc for the entire encoding. Return 0
  * if an error occurred (malformed JSON input, or malloc failed). The out_size
  * parameter is optional as the utf-8 string is null terminated. */
-json_weak void *json_write_pretty(const struct json_value_s *value,
+void *json_write_pretty(const struct json_value_s *value,
                                   const char *indent, const char *newline,
                                   size_t *out_size);
 
 /* Reinterpret a JSON value as a string. Returns null is the value was not a
  * string. */
-json_weak struct json_string_s *
+struct json_string_s *
 json_value_as_string(struct json_value_s *const value);
 
 /* Reinterpret a JSON value as a number. Returns null is the value was not a
  * number. */
-json_weak struct json_number_s *
+struct json_number_s *
 json_value_as_number(struct json_value_s *const value);
 
 /* Reinterpret a JSON value as an object. Returns null is the value was not an
  * object. */
-json_weak struct json_object_s *
+struct json_object_s *
 json_value_as_object(struct json_value_s *const value);
 
 /* Reinterpret a JSON value as an array. Returns null is the value was not an
  * array. */
-json_weak struct json_array_s *
+struct json_array_s *
 json_value_as_array(struct json_value_s *const value);
 
 /* Whether the value is true. */
-json_weak int json_value_is_true(const struct json_value_s *const value);
+int json_value_is_true(const struct json_value_s *const value);
 
 /* Whether the value is false. */
-json_weak int json_value_is_false(const struct json_value_s *const value);
+int json_value_is_false(const struct json_value_s *const value);
 
 /* Whether the value is null. */
-json_weak int json_value_is_null(const struct json_value_s *const value);
+int json_value_is_null(const struct json_value_s *const value);
 
 /* The various types JSON values can be. Used to identify what a value is. */
 enum json_type_e {
@@ -378,69 +327,11 @@ struct json_parse_result_s {
   size_t error_row_no;
 };
 
-#ifdef __cplusplus
-} /* extern "C". */
-#endif
-
 #include <stdlib.h>
-
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
-
-#if defined(_MSC_VER) && (_MSC_VER < 1920)
-#define json_uintmax_t unsigned __int64
-#else
 #include <inttypes.h>
 #define json_uintmax_t uintmax_t
-#endif
-
-#if defined(_MSC_VER)
-#define json_strtoumax _strtoui64
-#else
 #define json_strtoumax strtoumax
-#endif
-
-#if defined(__cplusplus) && (__cplusplus >= 201103L)
-#define json_null nullptr
-#else
 #define json_null 0
-#endif
-
-#if defined(__clang__)
-#pragma clang diagnostic push
-
-/* we do one big allocation via malloc, then cast aligned slices of this for. */
-/* our structures - we don't have a way to tell the compiler we know what we. */
-/* are doing, so disable the warning instead! */
-#pragma clang diagnostic ignored "-Wcast-align"
-
-/* We use C style casts everywhere. */
-#pragma clang diagnostic ignored "-Wold-style-cast"
-
-/* We need long long for strtoull. */
-#pragma clang diagnostic ignored "-Wc++11-long-long"
-
-/* Who cares if nullptr doesn't work with C++98, we don't use it there! */
-#pragma clang diagnostic ignored "-Wc++98-compat"
-#pragma clang diagnostic ignored "-Wc++98-compat-pedantic"
-#elif defined(_MSC_VER)
-#pragma warning(push)
-
-/* disable 'function selected for inline expansion' warning. */
-#pragma warning(disable : 4711)
-
-/* disable '#pragma warning: there is no warning number' warning. */
-#pragma warning(disable : 4619)
-
-/* disable 'warning number not a valid compiler warning' warning. */
-#pragma warning(disable : 4616)
-
-/* disable 'Compiler will insert Spectre mitigation for memory load if
- * /Qspectre. */
-/* switch specified' warning. */
-#pragma warning(disable : 5045)
-#endif
 
 struct json_parse_state_s {
   const char *src;
@@ -457,7 +348,7 @@ struct json_parse_state_s {
   size_t error;
 };
 
-json_weak int json_hexadecimal_digit(const char c);
+int json_hexadecimal_digit(const char c);
 int json_hexadecimal_digit(const char c) {
   if ('0' <= c && c <= '9') {
     return c - '0';
@@ -471,7 +362,7 @@ int json_hexadecimal_digit(const char c) {
   return -1;
 }
 
-json_weak int json_hexadecimal_value(const char *c, const unsigned long size,
+int json_hexadecimal_value(const char *c, const unsigned long size,
                                      unsigned long *result);
 int json_hexadecimal_value(const char *c, const unsigned long size,
                            unsigned long *result) {
@@ -494,7 +385,7 @@ int json_hexadecimal_value(const char *c, const unsigned long size,
   return 1;
 }
 
-json_weak int json_skip_whitespace(struct json_parse_state_s *state);
+int json_skip_whitespace(struct json_parse_state_s *state);
 int json_skip_whitespace(struct json_parse_state_s *state) {
   size_t offset = state->offset;
   const size_t size = state->size;
@@ -536,7 +427,7 @@ int json_skip_whitespace(struct json_parse_state_s *state) {
   return 1;
 }
 
-json_weak int json_skip_c_style_comments(struct json_parse_state_s *state);
+int json_skip_c_style_comments(struct json_parse_state_s *state);
 int json_skip_c_style_comments(struct json_parse_state_s *state) {
   /* do we have a comment?. */
   if ('/' == state->src[state->offset]) {
@@ -599,7 +490,7 @@ int json_skip_c_style_comments(struct json_parse_state_s *state) {
   return 0;
 }
 
-json_weak int json_skip_all_skippables(struct json_parse_state_s *state);
+int json_skip_all_skippables(struct json_parse_state_s *state);
 int json_skip_all_skippables(struct json_parse_state_s *state) {
   /* skip all whitespace and other skippables until there are none left. note
    * that the previous version suffered from read past errors should. the
@@ -646,10 +537,10 @@ int json_skip_all_skippables(struct json_parse_state_s *state) {
   return 0;
 }
 
-json_weak int json_get_value_size(struct json_parse_state_s *state,
+int json_get_value_size(struct json_parse_state_s *state,
                                   int is_global_object);
 
-json_weak int json_get_string_size(struct json_parse_state_s *state,
+int json_get_string_size(struct json_parse_state_s *state,
                                    size_t is_key);
 int json_get_string_size(struct json_parse_state_s *state, size_t is_key) {
   size_t offset = state->offset;
@@ -831,13 +722,13 @@ int json_get_string_size(struct json_parse_state_s *state, size_t is_key) {
   return 0;
 }
 
-json_weak int is_valid_unquoted_key_char(const char c);
+int is_valid_unquoted_key_char(const char c);
 int is_valid_unquoted_key_char(const char c) {
   return (('0' <= c && c <= '9') || ('a' <= c && c <= 'z') ||
           ('A' <= c && c <= 'Z') || ('_' == c));
 }
 
-json_weak int json_get_key_size(struct json_parse_state_s *state);
+int json_get_key_size(struct json_parse_state_s *state);
 int json_get_key_size(struct json_parse_state_s *state) {
   const size_t flags_bitset = state->flags_bitset;
 
@@ -884,7 +775,7 @@ int json_get_key_size(struct json_parse_state_s *state) {
   }
 }
 
-json_weak int json_get_object_size(struct json_parse_state_s *state,
+int json_get_object_size(struct json_parse_state_s *state,
                                    int is_global_object);
 int json_get_object_size(struct json_parse_state_s *state,
                          int is_global_object) {
@@ -1022,7 +913,7 @@ int json_get_object_size(struct json_parse_state_s *state,
   return 0;
 }
 
-json_weak int json_get_array_size(struct json_parse_state_s *state);
+int json_get_array_size(struct json_parse_state_s *state);
 int json_get_array_size(struct json_parse_state_s *state) {
   const size_t flags_bitset = state->flags_bitset;
   size_t elements = 0;
@@ -1095,7 +986,7 @@ int json_get_array_size(struct json_parse_state_s *state) {
   return 1;
 }
 
-json_weak int json_get_number_size(struct json_parse_state_s *state);
+int json_get_number_size(struct json_parse_state_s *state);
 int json_get_number_size(struct json_parse_state_s *state) {
   const size_t flags_bitset = state->flags_bitset;
   size_t offset = state->offset;
@@ -1292,7 +1183,7 @@ int json_get_number_size(struct json_parse_state_s *state) {
   return 0;
 }
 
-json_weak int json_get_value_size(struct json_parse_state_s *state,
+int json_get_value_size(struct json_parse_state_s *state,
                                   int is_global_object);
 int json_get_value_size(struct json_parse_state_s *state,
                         int is_global_object) {
@@ -1399,11 +1290,11 @@ int json_get_value_size(struct json_parse_state_s *state,
   }
 }
 
-json_weak void json_parse_value(struct json_parse_state_s *state,
+void json_parse_value(struct json_parse_state_s *state,
                                 int is_global_object,
                                 struct json_value_s *value);
 
-json_weak void json_parse_string(struct json_parse_state_s *state,
+void json_parse_string(struct json_parse_state_s *state,
                                  struct json_string_s *string);
 void json_parse_string(struct json_parse_state_s *state,
                        struct json_string_s *string) {
@@ -1535,7 +1426,7 @@ void json_parse_string(struct json_parse_state_s *state,
   state->offset = offset;
 }
 
-json_weak void json_parse_key(struct json_parse_state_s *state,
+void json_parse_key(struct json_parse_state_s *state,
                               struct json_string_s *string);
 void json_parse_key(struct json_parse_state_s *state,
                     struct json_string_s *string) {
@@ -1575,7 +1466,7 @@ void json_parse_key(struct json_parse_state_s *state,
   }
 }
 
-json_weak void json_parse_object(struct json_parse_state_s *state,
+void json_parse_object(struct json_parse_state_s *state,
                                  int is_global_object,
                                  struct json_object_s *object);
 void json_parse_object(struct json_parse_state_s *state, int is_global_object,
@@ -1713,7 +1604,7 @@ void json_parse_object(struct json_parse_state_s *state, int is_global_object,
   object->length = elements;
 }
 
-json_weak void json_parse_array(struct json_parse_state_s *state,
+void json_parse_array(struct json_parse_state_s *state,
                                 struct json_array_s *array);
 void json_parse_array(struct json_parse_state_s *state,
                       struct json_array_s *array) {
@@ -1803,7 +1694,7 @@ void json_parse_array(struct json_parse_state_s *state,
   array->length = elements;
 }
 
-json_weak void json_parse_number(struct json_parse_state_s *state,
+void json_parse_number(struct json_parse_state_s *state,
                                  struct json_number_s *number);
 void json_parse_number(struct json_parse_state_s *state,
                        struct json_number_s *number) {
@@ -1896,7 +1787,7 @@ void json_parse_number(struct json_parse_state_s *state,
   state->offset = offset;
 }
 
-json_weak void json_parse_value(struct json_parse_state_s *state,
+void json_parse_value(struct json_parse_state_s *state,
                                 int is_global_object,
                                 struct json_value_s *value);
 void json_parse_value(struct json_parse_state_s *state, int is_global_object,
@@ -2125,15 +2016,15 @@ struct json_value_s *json_extract_value(const struct json_value_s *value) {
   return json_extract_value_ex(value, json_null, json_null);
 }
 
-json_weak struct json_extract_result_s
+struct json_extract_result_s
 json_extract_get_number_size(const struct json_number_s *const number);
-json_weak struct json_extract_result_s
+struct json_extract_result_s
 json_extract_get_string_size(const struct json_string_s *const string);
-json_weak struct json_extract_result_s
+struct json_extract_result_s
 json_extract_get_object_size(const struct json_object_s *const object);
-json_weak struct json_extract_result_s
+struct json_extract_result_s
 json_extract_get_array_size(const struct json_array_s *const array);
-json_weak struct json_extract_result_s
+struct json_extract_result_s
 json_extract_get_value_size(const struct json_value_s *const value);
 
 struct json_extract_result_s
@@ -2238,7 +2129,7 @@ struct json_extract_state_s {
   char *data;
 };
 
-json_weak void json_extract_copy_value(struct json_extract_state_s *const state,
+void json_extract_copy_value(struct json_extract_state_s *const state,
                                        const struct json_value_s *const value);
 void json_extract_copy_value(struct json_extract_state_s *const state,
                              const struct json_value_s *const value) {
@@ -2417,11 +2308,11 @@ int json_value_is_null(const struct json_value_s *const value) {
   return value->type == json_type_null;
 }
 
-json_weak int
+int
 json_write_minified_get_value_size(const struct json_value_s *value,
                                    size_t *size);
 
-json_weak int json_write_get_number_size(const struct json_number_s *number,
+int json_write_get_number_size(const struct json_number_s *number,
                                          size_t *size);
 int json_write_get_number_size(const struct json_number_s *number,
                                size_t *size) {
@@ -2545,7 +2436,7 @@ cleanup:
   return 0;
 }
 
-json_weak int json_write_get_string_size(const struct json_string_s *string,
+int json_write_get_string_size(const struct json_string_s *string,
                                          size_t *size);
 int json_write_get_string_size(const struct json_string_s *string,
                                size_t *size) {
@@ -2572,7 +2463,7 @@ int json_write_get_string_size(const struct json_string_s *string,
   return 0;
 }
 
-json_weak int
+int
 json_write_minified_get_array_size(const struct json_array_s *array,
                                    size_t *size);
 int json_write_minified_get_array_size(const struct json_array_s *array,
@@ -2595,7 +2486,7 @@ int json_write_minified_get_array_size(const struct json_array_s *array,
   return 0;
 }
 
-json_weak int
+int
 json_write_minified_get_object_size(const struct json_object_s *object,
                                     size_t *size);
 int json_write_minified_get_object_size(const struct json_object_s *object,
@@ -2625,7 +2516,7 @@ int json_write_minified_get_object_size(const struct json_object_s *object,
   return 0;
 }
 
-json_weak int
+int
 json_write_minified_get_value_size(const struct json_value_s *value,
                                    size_t *size);
 int json_write_minified_get_value_size(const struct json_value_s *value,
@@ -2658,10 +2549,10 @@ int json_write_minified_get_value_size(const struct json_value_s *value,
   }
 }
 
-json_weak char *json_write_minified_value(const struct json_value_s *value,
+char *json_write_minified_value(const struct json_value_s *value,
                                           char *data);
 
-json_weak char *json_write_number(const struct json_number_s *number,
+char *json_write_number(const struct json_number_s *number,
                                   char *data);
 char *json_write_number(const struct json_number_s *number, char *data) {
   json_uintmax_t parsed_number, backup;
@@ -2844,7 +2735,7 @@ char *json_write_number(const struct json_number_s *number, char *data) {
   return data;
 }
 
-json_weak char *json_write_string(const struct json_string_s *string,
+char *json_write_string(const struct json_string_s *string,
                                   char *data);
 char *json_write_string(const struct json_string_s *string, char *data) {
   size_t i;
@@ -2892,7 +2783,7 @@ char *json_write_string(const struct json_string_s *string, char *data) {
   return data;
 }
 
-json_weak char *json_write_minified_array(const struct json_array_s *array,
+char *json_write_minified_array(const struct json_array_s *array,
                                           char *data);
 char *json_write_minified_array(const struct json_array_s *array, char *data) {
   struct json_array_element_s *element = json_null;
@@ -2917,7 +2808,7 @@ char *json_write_minified_array(const struct json_array_s *array, char *data) {
   return data;
 }
 
-json_weak char *json_write_minified_object(const struct json_object_s *object,
+char *json_write_minified_object(const struct json_object_s *object,
                                            char *data);
 char *json_write_minified_object(const struct json_object_s *object,
                                  char *data) {
@@ -2952,7 +2843,7 @@ char *json_write_minified_object(const struct json_object_s *object,
   return data;
 }
 
-json_weak char *json_write_minified_value(const struct json_value_s *value,
+char *json_write_minified_value(const struct json_value_s *value,
                                           char *data);
 char *json_write_minified_value(const struct json_value_s *value, char *data) {
   switch (value->type) {
@@ -3032,12 +2923,12 @@ void *json_write_minified(const struct json_value_s *value, size_t *out_size) {
   return data;
 }
 
-json_weak int json_write_pretty_get_value_size(const struct json_value_s *value,
+int json_write_pretty_get_value_size(const struct json_value_s *value,
                                                size_t depth, size_t indent_size,
                                                size_t newline_size,
                                                size_t *size);
 
-json_weak int json_write_pretty_get_array_size(const struct json_array_s *array,
+int json_write_pretty_get_array_size(const struct json_array_s *array,
                                                size_t depth, size_t indent_size,
                                                size_t newline_size,
                                                size_t *size);
@@ -3080,7 +2971,7 @@ int json_write_pretty_get_array_size(const struct json_array_s *array,
   return 0;
 }
 
-json_weak int
+int
 json_write_pretty_get_object_size(const struct json_object_s *object,
                                   size_t depth, size_t indent_size,
                                   size_t newline_size, size_t *size);
@@ -3124,7 +3015,7 @@ int json_write_pretty_get_object_size(const struct json_object_s *object,
   return 0;
 }
 
-json_weak int json_write_pretty_get_value_size(const struct json_value_s *value,
+int json_write_pretty_get_value_size(const struct json_value_s *value,
                                                size_t depth, size_t indent_size,
                                                size_t newline_size,
                                                size_t *size);
@@ -3161,11 +3052,11 @@ int json_write_pretty_get_value_size(const struct json_value_s *value,
   }
 }
 
-json_weak char *json_write_pretty_value(const struct json_value_s *value,
+char *json_write_pretty_value(const struct json_value_s *value,
                                         size_t depth, const char *indent,
                                         const char *newline, char *data);
 
-json_weak char *json_write_pretty_array(const struct json_array_s *array,
+char *json_write_pretty_array(const struct json_array_s *array,
                                         size_t depth, const char *indent,
                                         const char *newline, char *data);
 char *json_write_pretty_array(const struct json_array_s *array, size_t depth,
@@ -3222,7 +3113,7 @@ char *json_write_pretty_array(const struct json_array_s *array, size_t depth,
   return data;
 }
 
-json_weak char *json_write_pretty_object(const struct json_object_s *object,
+char *json_write_pretty_object(const struct json_object_s *object,
                                          size_t depth, const char *indent,
                                          const char *newline, char *data);
 char *json_write_pretty_object(const struct json_object_s *object, size_t depth,
@@ -3291,7 +3182,7 @@ char *json_write_pretty_object(const struct json_object_s *object, size_t depth,
   return data;
 }
 
-json_weak char *json_write_pretty_value(const struct json_value_s *value,
+char *json_write_pretty_value(const struct json_value_s *value,
                                         size_t depth, const char *indent,
                                         const char *newline, char *data);
 char *json_write_pretty_value(const struct json_value_s *value, size_t depth,
@@ -3393,11 +3284,5 @@ void *json_write_pretty(const struct json_value_s *value, const char *indent,
 
   return data;
 }
-
-#if defined(__clang__)
-#pragma clang diagnostic pop
-#elif defined(_MSC_VER)
-#pragma warning(pop)
-#endif
 
 #endif /* SHEREDOM_JSON_H_INCLUDED. */

@@ -115,7 +115,7 @@ wp_auth(WP *wp)
 	fields = malloc(sizeof(char) * (strlen(wp->site->usr) + strlen(safepw) +
 					fieldlen + 13));
 	if (!fields)
-		goto free_ep;
+		goto free_pw;
 
 	sprintf(fields, "%s=%s&%s=%s&%s=forever", wp_login_params[0],
 		wp->site->usr, wp_login_params[1], safepw, wp_login_params[2]);
@@ -136,7 +136,6 @@ wp_auth(WP *wp)
 		fprintf(stderr, "uwp: login authentication failed\n");
 		goto free_fields;
 	}
-
 	wp->auth = ret = 1;
 
 free_fields:
@@ -146,7 +145,7 @@ free_pw:
 	free(safepw);
 free_ep:
 	free(ep);
-cleanup:
+
 	curl_easy_setopt(wp->conn, CURLOPT_CUSTOMREQUEST, NULL);
 	curl_easy_setopt(wp->conn, CURLOPT_POSTFIELDS, NULL);
 	curl_easy_setopt(wp->conn, CURLOPT_HTTPGET, 1);

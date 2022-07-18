@@ -5,7 +5,6 @@
 #include <stdio.h>
 
 #include "conf.h"
-#include "config.h"
 #include <string.h>
 
 /*
@@ -18,7 +17,6 @@ main(int argc, char **argv)
 	const Site *s;
 	SiteList *sites, *cur;
 	int pwlen;
-	const char *path;
 
 	setlocale(LC_ALL, "");
 	sites = sites_load();

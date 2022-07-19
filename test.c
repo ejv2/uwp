@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "json.h"
 #include "util.h"
 #include "conf.h"
 #include "wp.h"
@@ -22,6 +23,8 @@ main(int argc, char **argv)
 	Site s;
 	WP wp;
 	WPResponse resp;
+	const char *errst;
+	struct json_object_s *err;
 	char user[BUFSIZ];
 
 	setlocale(LC_ALL, "");
@@ -35,10 +38,7 @@ main(int argc, char **argv)
 		return 1;
 
 	wp_init(&wp, &s);
-	if (!wp_auth(&wp))
-		return 1;
-
-	resp = wp_request(&wp, "/posts/");
+	resp = wp_request(&wp, "/users?context=edit");
 
 	if (resp.success < 0) {
 		const char *reason;
@@ -54,11 +54,27 @@ main(int argc, char **argv)
 			break;
 		}
 
-		fprintf(stderr, "uwp: could not get '/posts/' endpoint: %s\n",
+		fprintf(stderr, "uwp: could not get '/users/' endpoint: %s\n",
 			reason);
 
 		/* NOTE: intentionally not freeing memory, as we do not know how far it was allocated */
 		return 1;
+	}
+
+	if (!resp.parse) {
+		fprintf(stderr,
+			"uwp: could not get '/users/' endpoint: malformed JSON response\n");
+		return 1;
+	}
+
+	if (resp.parse->type == json_type_object) {
+		err = (struct json_object_s *)resp.parse->payload;
+		if ((errst = wp_check_errors(err))) {
+			fprintf(stderr,
+				"uwp: could not get '/users/' endpoint: %s\n",
+				errst);
+			return 1;
+		}
 	}
 
 	free(resp.parse);

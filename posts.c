@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "json.h"
 #include "arg.h"
 #include "conf.h"
 #include "wp.h"
@@ -125,7 +126,6 @@ main(int argc, char **argv)
 		return 1;
 	}
 	wp_init(&wp, &s);
-	wp_auth(&wp);
 
 	if (id > 0)
 		ret = posts_get(&wp, id, pages);

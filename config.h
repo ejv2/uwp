@@ -13,7 +13,7 @@
  */
 static const Site sites[] = {
 	/* Name		URL					Username	Password	*/
-	{"ejm",		"https://ethanjmarshall.co.uk",		"EMarshall",	"pass:Personal Website" },
+	{"ejm",		"https://ethanjmarshall.co.uk",		"EMarshall",	"pass:uwp" },
 };
 
 /* Location of extra sites TSV file */

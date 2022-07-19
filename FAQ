@@ -12,13 +12,10 @@ Go figure. If this confuses you too much, feel free to use µwp instead.
 It goes without saying to check that:
 	- You have configured the site properly
 	- Your credentials are right
+	- You are using an application password, not your human password
 	- Your site is running WordPress
 	- The admin dashboard and logins are enabled
 	- The site is up
-
-However, some WordPress plugins (like Jetpack and recaptcha) require you to
-complete verification before allowing logins. Try logging in manually and then
-using uwp again. These tools usually cache the verification for some time.
 
 No output from tools
 --------------------

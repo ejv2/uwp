@@ -25,6 +25,8 @@ for best experience:
 	- the environment variables $BROWSER, $PAGER and $EDITOR set
 	- a computer better than a toaster
 
+WordPress v5.6 or later is required.
+
 Running
 -------
 
@@ -44,3 +46,14 @@ Configuration
 Much of the configuration of uwp is done through config.h, but sites can be
 configured via the file ".config/uwp/sites" file, format of which is a simple
 TSV file. Fields are documented separately.
+
+Authentication
+--------------
+
+uwp passwords are WordPress application passwords. This is required to get
+around WordPress's stupid (but aptly named) "nonce" system, designed to stop
+scripts using its API. Instead, an application password must be used. You can
+generate this at the bottom of your profile settings menu.
+
+It should look like this:
+	abcd EFGH 1234 ijkl MNOP 6789

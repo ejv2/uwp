@@ -7,10 +7,11 @@
 #include <stdio.h>
 
 #include "json.h"
+#include "txt.h"
+#include "util.h"
 #include "arg.h"
 #include "conf.h"
 #include "wp.h"
-#include <string.h>
 
 char *argv0;
 
@@ -18,8 +19,13 @@ static void
 usage()
 {
 	fprintf(stderr, "%s: usage\n", argv0);
-	fprintf(stderr, "-p:\tshow pages, not posts");
-	fprintf(stderr, "-i:\tshow this post/page ID");
+	fprintf(stderr, "-p:\tshow pages, not posts\n");
+	fprintf(stderr, "-i:\tshow this post/page ID\n");
+	fprintf(stderr, "-e:\tshow page excerpt below details\n");
+	fprintf(stderr, "-c:\tshow page content below details\n");
+	fprintf(stderr, "-C:\tshow this many characters of content; zero to be unlimited (default: 20)\n");
+	fprintf(stderr, "-n:\tshow this many results (default: 20)\n");
+	fprintf(stderr, "-u:\tthis message\n");
 	exit(1);
 }
 
@@ -45,19 +51,84 @@ post_print(WPPost p)
 	}
 }
 
-static int
-posts_list()
+static void
+post_print_content(WPPost p, int showexcerpt, int showcont, int contchars)
 {
-	return 0;
+	char *cont, *csuffix;
+
+	if (showexcerpt) {
+		printf("\t%s\n", p.excerpt);
+	}
+	if (showcont) {
+		if (contchars) {
+			cont = limit_string(p.content, contchars);
+			csuffix = "...";
+		} else {
+			cont = strdup(p.content);
+			csuffix = "";
+		}
+		strip_newline(cont);
+		printf("%s%s\n----------\n", cont, csuffix);
+		free(cont);
+	}
 }
 
 static int
-posts_get(WP *wp, long id, int page)
+posts_list(WP *wp, int page, int results, int showexcerpt, int showcont, int contchars)
+{
+	int ret = 1;
+	WPResponse resp;
+	WPPost tmp;
+	struct json_array_s *arr;
+	struct json_array_element_s *e;
+	const char *eppref, *err;
+	char ep[200];
+
+	if (page)
+		eppref = "/pages/";
+	else
+		eppref = "/posts/";
+	snprintf(ep, 200, "%s?per_page=%d", eppref, results);
+
+	resp = wp_request(wp, ep);
+	if (resp.success < 0) {
+		fprintf(stderr, "%s: posts: request failed\n", argv0);
+		goto out;
+	}
+	if (resp.parse->type != json_type_array) {
+		if (resp.parse->type == json_type_object) {
+			err = wp_check_errors((struct json_object_s *)resp.parse->payload);
+			fprintf(stderr, "%s: posts: request error: %s\n", argv0, err);
+		} else {
+			fprintf(stderr, "%s: posts: malformed response\n", argv0);
+		}
+		goto out;
+	}
+
+	arr = (struct json_array_s *)resp.parse->payload;
+	for (e = arr->start; e; e = e->next) {
+		if (!wp_parse_post(&tmp, e->value)) {
+			fprintf(stderr, "%s: posts: request error: %s\n", argv0, err);
+			goto out;
+		}
+
+		printf("%ld\t%s\t%s\n", tmp.id, tmp.title, tmp.url);
+		post_print_content(tmp, showexcerpt, showcont, contchars);
+	}
+
+out:
+	free(resp.parse);
+	return ret;
+}
+
+static int
+posts_get(WP *wp, long id, int page, int showexcerpt, int showcont, int contchars)
 {
 	int ret = 1;
 	WPResponse resp;
 	WPPost p;
 	const char *eppref;
+	char *cont, *csuffix;
 	char ep[200];
 
 	if (page)
@@ -74,6 +145,8 @@ posts_get(WP *wp, long id, int page)
 	}
 
 	post_print(p);
+	post_print_content(p, showexcerpt, showcont, contchars);
+
 	ret = 0;
 out:
 	free(resp.parse);
@@ -90,7 +163,8 @@ out:
 int
 main(int argc, char **argv)
 {
-	int ret = 1, pages = 0;
+	int ret = 1;
+	int res = 20, pages = 0, cont = 0, excerpt = 0, amcont = 20;
 	long max = 10, id = -1;
 	WP wp;
 	SiteList *l;
@@ -100,6 +174,18 @@ main(int argc, char **argv)
 	ARGBEGIN {
 		case 'p':
 			pages = 1;
+			break;
+		case 'e':
+			excerpt = 1;
+			break;
+		case 'c':
+			cont = 1;
+			break;
+		case 'C':
+			amcont = strtoimax(EARGF(usage()), NULL, 10);
+			break;
+		case 'n':
+			res = strtoimax(EARGF(usage()), NULL, 10);
 			break;
 		case 'i':
 			id = strtol(EARGF(usage()), NULL, 10);
@@ -128,9 +214,9 @@ main(int argc, char **argv)
 	wp_init(&wp, &s);
 
 	if (id > 0)
-		ret = posts_get(&wp, id, pages);
+		ret = posts_get(&wp, id, pages, excerpt, cont, amcont);
 	else
-		ret = posts_list();
+		ret = posts_list(&wp, pages, res, excerpt, cont, amcont);
 
 	sites_unload(l);
 	return ret;

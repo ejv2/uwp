@@ -232,7 +232,7 @@ site_arg(Site *dst, SiteList *l, const char *arg)
 	} else {
 		if (!(tmp = site_lookup(l, arg))) {
 			fprintf(stderr, "uwp: %s: site not found\n", arg);
-			return 1;
+			return 0;
 		}
 
 		s = *tmp;

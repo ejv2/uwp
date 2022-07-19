@@ -13,8 +13,6 @@ typedef struct {
 
 	const Site *site;
 	char *url;
-
-	int auth;
 } WP;
 
 typedef struct {
@@ -44,8 +42,8 @@ typedef struct {
 } WPPost;
 
 int wp_init(WP *wp, const Site *site);
-int wp_auth(WP *wp);
 WPResponse wp_request(WP *wp, const char *endpoint);
+const char *wp_check_errors(struct json_object_s *root);
 void wp_destroy(WP *wp);
 
 int wp_parse_post(WPPost *p, struct json_value_s *text);

@@ -236,6 +236,7 @@ site_arg(Site *dst, SiteList *l, const char *arg)
 		}
 
 		s = *tmp;
+		free(user);
 		tmp = NULL;
 	}
 

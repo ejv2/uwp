@@ -31,27 +31,8 @@ main(int argc, char **argv)
 	}
 
 	l = sites_load();
-	if (strchr(argv[1], '/')) {
-		s = (Site){ .name = argv[1],
-			    .baseurl = argv[1],
-			    .usr = user,
-			    .pw = "ask" };
-
-		fprintf(stderr, "Username:");
-		if (!fgets(user, BUFSIZ, stdin)) {
-			return 1;
-		}
-		strip_newline(user);
-	} else {
-		if (!(tmp = site_lookup(l, argv[1]))) {
-			fprintf(stderr, "%s: %s: site not found\n", argv[0],
-				argv[1]);
-			return 1;
-		}
-
-		s = *tmp;
-		tmp = NULL;
-	}
+	if (!site_arg(&s, l, argv[1]))
+		return 1;
 
 	wp_init(&wp, &s);
 	if (!wp_auth(&wp))

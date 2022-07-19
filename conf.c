@@ -208,3 +208,39 @@ site_lookup(SiteList *list, const char *name)
 
 	return NULL;
 }
+
+int
+site_arg(Site *dst, SiteList *l, const char *arg)
+{
+	const Site *tmp;
+	Site s;
+	char *user = malloc(sizeof(char) * BUFSIZ);
+
+	if (!dst || !arg)
+		return 0;
+
+	if (strchr(arg, '/')) {
+		s = (Site){ .name = arg,
+			    .baseurl = arg,
+			    .usr = user,
+			    .pw = "ask" };
+
+		fprintf(stderr, "Username:");
+		if (!fgets(user, BUFSIZ, stdin)) {
+			return 0;
+		}
+		strip_newline(user);
+	} else {
+		if (!(tmp = site_lookup(l, arg))) {
+			fprintf(stderr, "%s: %s: site not found\n", arg,
+				arg);
+			return 1;
+		}
+
+		s = *tmp;
+		tmp = NULL;
+	}
+
+	*dst = s;
+	return 1;
+}

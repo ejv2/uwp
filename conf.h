@@ -20,4 +20,6 @@ int site_pwask(const Site *s);
 
 SiteList *sites_load();
 void sites_unload(SiteList *list);
+
 const Site *site_lookup(SiteList *list, const char *name);
+int site_arg(Site *dst, SiteList *l, const char *arg);

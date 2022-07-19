@@ -9,7 +9,7 @@ static const char *wp_fake_useragent =
 typedef struct {
 	CURL *conn;
 	unsigned long buflen;
-	char *buf;
+	char *buf, *sendbuf;
 
 	const Site *site;
 	char *url;
@@ -23,7 +23,29 @@ typedef struct {
 	struct json_value_s *parse;
 } WPResponse;
 
+typedef enum {
+	Post,
+	Page,
+	Unknown
+} WPPostType;
+
+/* represents both categories and tags, as both share a format */
+typedef struct {
+	long id;
+	const char *name;
+} WPAttr;
+
+typedef struct {
+	long id;
+	const char *url;
+	const char *title, *content, *excerpt;
+	const char *date, *modified;
+	WPPostType type;
+} WPPost;
+
 int wp_init(WP *wp, const Site *site);
 int wp_auth(WP *wp);
 WPResponse wp_request(WP *wp, const char *endpoint);
 void wp_destroy(WP *wp);
+
+int wp_parse_post(WPPost *p, struct json_value_s *text);

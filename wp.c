@@ -47,6 +47,40 @@ wp_format_endpoint(WP *wp, const char *endpoint)
 	return work;
 }
 
+static const char *
+wp_check_errors(struct json_object_s *root)
+{
+	struct json_object_element_s *e = root->start;
+	struct json_string_s *tmp;
+	while (e) {
+		if (strcmp(e->name->string, "code") == 0) {
+			tmp = json_value_as_string(e->value);
+			if (strlen(tmp->string) > 0) {
+				return tmp->string;
+			}
+		}
+
+		e = e->next;
+	}
+
+	return NULL;
+}
+
+static const char *
+wp_extract_key(const char *key, struct json_object_s *root)
+{
+	struct json_object_element_s *e = root->start;
+	while (e) {
+		if (strcmp(e->name->string, key) == 0) {
+			return json_value_as_string(e->value)->string;
+		}
+
+		e = e->next;
+	}
+
+	return NULL;
+}
+
 int
 wp_init(WP *wp, const Site *site)
 {
@@ -74,6 +108,7 @@ wp_init(WP *wp, const Site *site)
 	wp->auth = 0;
 	wp->buflen = 0;
 	wp->buf = NULL;
+	wp->sendbuf = NULL;
 
 	return 1;
 }
@@ -198,4 +233,74 @@ wp_destroy(WP *wp)
 	free(wp->url);
 	if (wp->buf)
 		free(wp->buf);
+}
+
+int
+wp_parse_post(WPPost *p, struct json_value_s *text)
+{
+	const char *cmp;
+	struct json_object_element_s *tmp;
+	struct json_object_s *root;
+	struct json_object_s *obj;
+	struct json_string_s *sobj;
+	struct json_number_s *nobj;
+	struct json_array_s *arrobj;
+
+	memset(p, 0, sizeof(*p));
+	if (!text || text->type != json_type_object)
+		return 0;
+
+	root = (struct json_object_s *)text->payload;
+	if (wp_check_errors(root)) {
+		return 0;
+	}
+
+	tmp = root->start;
+	while (tmp) {
+		cmp = tmp->name->string;
+		if (strcmp(cmp, "id") == 0) {
+			if ((nobj = json_value_as_number(tmp->value))) {
+				p->id = strtol(nobj->number, NULL, 10);
+			}
+		} else if (strcmp(cmp, "link") == 0) {
+			if ((sobj = json_value_as_string(tmp->value))) {
+				p->url = sobj->string;
+			}
+		} else if (strcmp(cmp, "date") == 0) {
+			if ((sobj = json_value_as_string(tmp->value))) {
+				p->date = sobj->string;
+			}
+		} else if (strcmp(cmp, "modified") == 0) {
+			if ((sobj = json_value_as_string(tmp->value))) {
+				p->modified = sobj->string;
+			}
+		} else if (strcmp(cmp, "title") == 0) {
+			if ((obj = json_value_as_object(tmp->value))) {
+				p->title = wp_extract_key("rendered", obj);
+			}
+		} else if (strcmp(cmp, "excerpt") == 0) {
+			if ((obj = json_value_as_object(tmp->value))) {
+				p->excerpt = wp_extract_key("rendered", obj);
+			}
+		} else if (strcmp(cmp, "content") == 0) {
+			if ((obj = json_value_as_object(tmp->value))) {
+				p->content = wp_extract_key("rendered", obj);
+			}
+		} else if (strcmp(cmp, "type") == 0) {
+			if ((sobj = json_value_as_string(tmp->value))) {
+				if (strcmp(sobj->string, "post") == 0) {
+					p->type = Post;
+				} else if (strcmp(sobj->string, "page") == 0) {
+					p->type = Page;
+				} else {
+					p->type = Unknown;
+				}
+			}
+		}
+
+
+		tmp = tmp->next;
+	}
+
+	return 1;
 }

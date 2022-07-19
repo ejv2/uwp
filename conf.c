@@ -30,7 +30,7 @@ pwstore(const Site *s)
 	char *pw, *pwname;
 	char cmd[LENGTH(passcmd) + strlen(s->pw) + 3];
 
-	pwname = strchr(s->pw, ':')+1;
+	pwname = strchr(s->pw, ':') + 1;
 	sprintf(cmd, "%s '%s'", passcmd, pwname);
 	proc = popen(cmd, "r");
 	if (!proc)
@@ -220,10 +220,9 @@ site_arg(Site *dst, SiteList *l, const char *arg)
 		return 0;
 
 	if (strchr(arg, '/')) {
-		s = (Site){ .name = arg,
-			    .baseurl = arg,
-			    .usr = user,
-			    .pw = "ask" };
+		s = (Site){
+			.name = arg, .baseurl = arg, .usr = user, .pw = "ask"
+		};
 
 		fprintf(stderr, "Username:");
 		if (!fgets(user, BUFSIZ, stdin)) {
@@ -232,8 +231,7 @@ site_arg(Site *dst, SiteList *l, const char *arg)
 		strip_newline(user);
 	} else {
 		if (!(tmp = site_lookup(l, arg))) {
-			fprintf(stderr, "%s: %s: site not found\n", arg,
-				arg);
+			fprintf(stderr, "uwp: %s: site not found\n", arg);
 			return 1;
 		}
 

@@ -49,6 +49,9 @@ main(int argc, char **argv)
 		case -2:
 			reason = "malformed JSON response";
 			break;
+		case -3:
+			reason = "HTTP error";
+			break;
 		default:
 			reason = "unknown error";
 			break;

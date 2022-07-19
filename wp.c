@@ -138,6 +138,7 @@ wp_request(WP *wp, const char *endpoint)
 {
 	WPResponse resp;
 	CURLcode c;
+	long status;
 	char *ep;
 
 	ep = wp_format_endpoint(wp, endpoint);
@@ -148,13 +149,19 @@ wp_request(WP *wp, const char *endpoint)
 		resp.success = -1;
 		goto cleanup;
 	}
-
+	curl_easy_getinfo(wp->conn, CURLINFO_RESPONSE_CODE, &status);
+	if (status >= 400) {
+		resp.success = -3;
+		goto cleanup;
+	}
 	resp.text = wp->buf;
 	resp.parse = json_parse(resp.text, wp->buflen);
 	if (!resp.parse) {
 		resp.success = -2;
 		goto cleanup;
 	}
+
+
 
 	resp.success = 0;
 cleanup:

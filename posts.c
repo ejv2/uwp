@@ -219,5 +219,6 @@ main(int argc, char **argv)
 		ret = posts_list(&wp, pages, res, excerpt, cont, amcont);
 
 	sites_unload(l);
+	wp_destroy(&wp);
 	return ret;
 }

@@ -66,6 +66,7 @@ wp_extract_key(const char *key, struct json_object_s *root)
 int
 wp_init(WP *wp, const Site *site)
 {
+	char *pw;
 	int slen, alen;
 
 	if (!curlready) {
@@ -88,14 +89,16 @@ wp_init(WP *wp, const Site *site)
 	strcat(wp->url, wp_api);
 
 	/* authentication */
+	pw = site_pw(wp->site);
 	curl_easy_setopt(wp->conn, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 	curl_easy_setopt(wp->conn, CURLOPT_USERNAME, wp->site->usr);
-	curl_easy_setopt(wp->conn, CURLOPT_PASSWORD, site_pw(wp->site));
+	curl_easy_setopt(wp->conn, CURLOPT_PASSWORD, pw);
 
 	wp->buflen = 0;
 	wp->buf = NULL;
 	wp->sendbuf = NULL;
 
+	free(pw);
 	return 1;
 }
 

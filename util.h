@@ -12,7 +12,7 @@ strip_newline(char *s)
 		return;
 
 	for (;;) {
-		if (*s == '\n') {
+		if (*s && *s == '\n' && *(s+1) == 0) {
 			*s = 0;
 			break;
 		}

@@ -5,7 +5,7 @@
 include config.mk
 
 MAIN  = uwp
-PROGS = uwp-help uwp-test uwp-sites uwp-posts
+PROGS = uwp-help uwp-test uwp-sites uwp-posts uwp-post
 
 COMMON  = wp.c conf.c txt.c
 OCOMMON = $(COMMON:.c=.o)
@@ -30,6 +30,9 @@ uwp-sites: sites.c $(PREQ)
 
 uwp-posts: posts.c $(PREQ)
 	$(CC) -o uwp-posts $(FLAGS) $(OCOMMON) posts.c
+
+uwp-post: post.c $(PREQ)
+	$(CC) -o uwp-post $(FLAGS) $(OCOMMON) post.c
 
 $(OCOMMON): $(HCOMMON)
 

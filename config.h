@@ -23,3 +23,8 @@ static const char *extra_sites = ".config/uwp/sites";
  * The command to run to extract a named password
  */
 static const char passcmd[] = "/usr/bin/pass show";
+
+/*
+ * The default text in a new post
+ */
+static const char new_template[] = "# New uwp post\n\nContent here\n\n---\nvim: ft=markdown";

@@ -32,9 +32,12 @@ usage()
 static void
 post_print(WPPost p)
 {
+	char *excerpt = strdup(p.excerpt);
+	strip_html(excerpt);
+
 	printf("id='%ld'\n", p.id);
 	printf("title='%s'\n", p.title);
-	printf("excerpt='%s'\n", p.excerpt);
+	printf("excerpt='%s'\n", excerpt);
 	printf("url='%s'\n", p.url);
 	printf("date='%s'\n", p.date);
 	printf("modified='%s'\n", p.modified);
@@ -49,15 +52,21 @@ post_print(WPPost p)
 			puts("type='unknown'");
 			break;
 	}
+
+	free(excerpt);
 }
 
 static void
 post_print_content(WPPost p, int showexcerpt, int showcont, int contchars)
 {
+	char *excerpt;
 	char *cont, *csuffix;
 
 	if (showexcerpt) {
-		printf("\t%s\n", p.excerpt);
+		excerpt = strdup(p.excerpt);
+		strip_html(excerpt);
+		printf("\t%s\n", excerpt);
+		free(excerpt);
 	}
 	if (showcont) {
 		if (contchars) {
@@ -68,6 +77,7 @@ post_print_content(WPPost p, int showexcerpt, int showcont, int contchars)
 			csuffix = "";
 		}
 		strip_newline(cont);
+		strip_html(cont);
 		printf("%s%s\n----------\n", cont, csuffix);
 		free(cont);
 	}

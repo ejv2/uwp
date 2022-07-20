@@ -23,7 +23,7 @@ usage()
 	fprintf(stderr, "-i:\tshow this post/page ID\n");
 	fprintf(stderr, "-e:\tshow page excerpt below details\n");
 	fprintf(stderr, "-c:\tshow page content below details\n");
-	fprintf(stderr, "-C:\tshow this many characters of content; zero to be unlimited (default: 20)\n");
+	fprintf(stderr, "-C:\tshow this many characters of content; zero to be unlimited (default: 70)\n");
 	fprintf(stderr, "-n:\tshow this many results (default: 20)\n");
 	fprintf(stderr, "-u:\tthis message\n");
 	exit(1);
@@ -174,7 +174,7 @@ int
 main(int argc, char **argv)
 {
 	int ret = 1;
-	int res = 20, pages = 0, cont = 0, excerpt = 0, amcont = 20;
+	int res = 20, pages = 0, cont = 0, excerpt = 0, amcont = 70;
 	long max = 10, id = -1;
 	WP wp;
 	SiteList *l;

@@ -23,7 +23,8 @@ usage()
 	fprintf(stderr, "-i:\tshow this post/page ID\n");
 	fprintf(stderr, "-e:\tshow page excerpt below details\n");
 	fprintf(stderr, "-c:\tshow page content below details\n");
-	fprintf(stderr, "-C:\tshow this many characters of content; zero to be unlimited (default: 70)\n");
+	fprintf(stderr,
+		"-C:\tshow this many characters of content; zero to be unlimited (default: 70)\n");
 	fprintf(stderr, "-n:\tshow this many results (default: 20)\n");
 	fprintf(stderr, "-u:\tthis message\n");
 	exit(1);
@@ -42,15 +43,15 @@ post_print(WPPost p)
 	printf("date='%s'\n", p.date);
 	printf("modified='%s'\n", p.modified);
 	switch (p.type) {
-		case Post:
-			puts("type='post'");
-			break;
-		case Page:
-			puts("type='page'");
-			break;
-		default:
-			puts("type='unknown'");
-			break;
+	case Post:
+		puts("type='post'");
+		break;
+	case Page:
+		puts("type='page'");
+		break;
+	default:
+		puts("type='unknown'");
+		break;
 	}
 
 	free(excerpt);
@@ -84,7 +85,8 @@ post_print_content(WPPost p, int showexcerpt, int showcont, int contchars)
 }
 
 static int
-posts_list(WP *wp, int page, int results, int showexcerpt, int showcont, int contchars)
+posts_list(WP *wp, int page, int results, int showexcerpt, int showcont,
+	   int contchars)
 {
 	int ret = 1;
 	WPResponse resp;
@@ -107,10 +109,13 @@ posts_list(WP *wp, int page, int results, int showexcerpt, int showcont, int con
 	}
 	if (resp.parse->type != json_type_array) {
 		if (resp.parse->type == json_type_object) {
-			err = wp_check_errors((struct json_object_s *)resp.parse->payload);
-			fprintf(stderr, "%s: posts: request error: %s\n", argv0, err);
+			err = wp_check_errors(
+				(struct json_object_s *)resp.parse->payload);
+			fprintf(stderr, "%s: posts: request error: %s\n", argv0,
+				err);
 		} else {
-			fprintf(stderr, "%s: posts: malformed response\n", argv0);
+			fprintf(stderr, "%s: posts: malformed response\n",
+				argv0);
 		}
 		goto out;
 	}
@@ -118,7 +123,8 @@ posts_list(WP *wp, int page, int results, int showexcerpt, int showcont, int con
 	arr = (struct json_array_s *)resp.parse->payload;
 	for (e = arr->start; e; e = e->next) {
 		if (!wp_parse_post(&tmp, e->value)) {
-			fprintf(stderr, "%s: posts: request error: %s\n", argv0, err);
+			fprintf(stderr, "%s: posts: request error: %s\n", argv0,
+				err);
 			goto out;
 		}
 
@@ -132,7 +138,8 @@ out:
 }
 
 static int
-posts_get(WP *wp, long id, int page, int showexcerpt, int showcont, int contchars)
+posts_get(WP *wp, long id, int page, int showexcerpt, int showcont,
+	  int contchars)
 {
 	int ret = 1;
 	WPResponse resp;
@@ -182,34 +189,34 @@ main(int argc, char **argv)
 
 	setlocale(LC_ALL, "");
 	ARGBEGIN {
-		case 'p':
-			pages = 1;
-			break;
-		case 'e':
-			excerpt = 1;
-			break;
-		case 'c':
-			cont = 1;
-			break;
-		case 'C':
-			amcont = strtoimax(EARGF(usage()), NULL, 10);
-			break;
-		case 'n':
-			res = strtoimax(EARGF(usage()), NULL, 10);
-			break;
-		case 'i':
-			id = strtol(EARGF(usage()), NULL, 10);
-			if (!id || errno != 0) {
-				fprintf(stderr, "%s: invalid ID\n", argv0);
-				return 1;
-			}
-			break;
-		case 'u':
-			usage();
-			/* NOTREACHED */
-		default:
-			fprintf(stderr, "%s: unknown flag '%c'\n", argv0, ARGC());
+	case 'p':
+		pages = 1;
+		break;
+	case 'e':
+		excerpt = 1;
+		break;
+	case 'c':
+		cont = 1;
+		break;
+	case 'C':
+		amcont = strtoimax(EARGF(usage()), NULL, 10);
+		break;
+	case 'n':
+		res = strtoimax(EARGF(usage()), NULL, 10);
+		break;
+	case 'i':
+		id = strtol(EARGF(usage()), NULL, 10);
+		if (!id || errno != 0) {
+			fprintf(stderr, "%s: invalid ID\n", argv0);
 			return 1;
+		}
+		break;
+	case 'u':
+		usage();
+		/* NOTREACHED */
+	default:
+		fprintf(stderr, "%s: unknown flag '%c'\n", argv0, ARGC());
+		return 1;
 	} ARGEND
 	if (argc < 1) {
 		fprintf(stderr, "%s: expected site name\n", argv0);

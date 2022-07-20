@@ -56,6 +56,9 @@ DisableFormat: false
 ExperimentalAutoDetectBinPacking: false
 FixNamespaceComments: false
 
+ForEachMacros: ['ARGBEGIN']
+StatementMacros: ['ARGEND']
+
 IncludeBlocks: Preserve
 IncludeCategories:
   - Regex: '.*'

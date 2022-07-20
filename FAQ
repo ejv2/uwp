@@ -29,6 +29,20 @@ So, to detect a successful authentication:
 Conversely for a failure:
 	uwp test mysite || echo "failed"
 
+Misaligned output from tools
+----------------------------
+
+uwp does not align output for human consumption, as this makes use in shell
+scripts and generally machine parsing annoying and inconvenient. As such,
+output fields are always delimited by a single TAB character, regardless of
+alignment, allowing fields to be exctracted with a simple 'cut -f'.
+
+If you need alignment, pipe output to 'column -t':
+	$ uwp sites | column -t
+		NAME  URL                           USERNAME   PASSWORD
+		ejm   https://ethanjmarshall.co.uk  EMarshall  pass:uwp
+		ejm2  https://ethanjmarshall.co.uk  EMarshall  ask
+
 Storing passwords in plain text is insecure
 -------------------------------------------
 

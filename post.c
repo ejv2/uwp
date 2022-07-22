@@ -305,7 +305,7 @@ main(int argc, char **argv)
 	int eskip = 0;
 
 	setlocale(LC_ALL, "");
-	usecol = isatty(STDOUT_FILENO);
+	usecol = isatty(STDOUT_FILENO) && colors;
 	memset(&post, 0, sizeof(struct post_struct));
 
 	ARGBEGIN {

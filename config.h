@@ -28,3 +28,8 @@ static const char passcmd[] = "/usr/bin/pass show";
  * The default text in a new post
  */
 static const char new_template[] = "# New uwp post\n\nContent here\n\n---\nvim: ft=markdown";
+
+/*
+ * Set to 0 to disable ANSI terminal colors
+ */
+static const int colors = 1;

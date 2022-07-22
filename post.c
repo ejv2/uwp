@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <ctype.h>
 #include <sys/wait.h>
 #include <md4c-html.h>
 
@@ -16,6 +17,28 @@
 #include "config.h"
 #include "wp.h"
 
+#define COLOR_RED     "\x1b[31m"
+#define COLOR_GREEN   "\x1b[32m"
+#define COLOR_BLUE    "\x1b[34m"
+#define COLOR_CYAN    "\x1b[36m"
+#define COLOR_RESET   "\x1b[0m"
+#define COLOR_BOLD    "\x1b[1m"
+
+struct opt_struct {
+	const char *longname;
+	char shorthand;
+	const char *help;
+};
+const struct opt_struct opt_help = {
+	.longname = "help",
+	.shorthand = 'h',
+	.help = "This message"
+};
+const struct opt_struct opt_quit = {
+	.longname = "quit",
+	.shorthand = 'q',
+	.help = "Exit now"
+};
 
 struct post_struct {
 	char *title, *slug;
@@ -25,12 +48,12 @@ struct post_struct {
 	char *tags[20];
 } post;
 char *argv0;
+int usecol = 1;
 
 void
 usage()
 {
 	fprintf(stderr, "%s: usage\n", argv0);
-
 	exit(1);
 }
 
@@ -59,22 +82,23 @@ load_post_file(struct post_struct *p, const char *path)
 }
 
 int
-spawn_editor(const char *editor, char *file)
+spawn_editor(const char *editor, char **file)
 {
 	char *f;
 	int hndl, epid, stat;
 	char tmpl[] = "/tmp/uwp-XXXXXX";
 
-	if (file) {
-		f = strdup(file);
+	if (*file) {
+		f = *file;
 	} else {
 		if ((hndl = mkstemp(tmpl)) < 0) {
 			perror("mkstemp");
 			return 1;
 		}
-		f = tmpl;
+		f = *file = strdup(tmpl);
 
 		write(hndl, new_template, LENGTH(new_template)-1);
+		close(hndl);
 	}
 
 	epid = fork();
@@ -94,6 +118,179 @@ spawn_editor(const char *editor, char *file)
 	return stat;
 }
 
+void
+print_post(struct post_struct p)
+{
+	if (p.title) { printf("Title: %s\n", p.title); }
+	else         { printf("Title: (empty)\n"); }
+
+	if (p.slug)  { printf("Slug: %s\n", p.slug); }
+	else         { printf("Slug: (empty)\n"); }
+
+	printf("Cagegories: ");
+	for (int i = 0; p.categories[i] && i < LENGTH(p.categories); i++) {
+		printf("'%s' ", p.categories[i]);
+	}
+	putchar('\n');
+
+	printf("Tags: ");
+	for (int i = 0; p.tags[i] && i < LENGTH(p.tags); i++) {
+		printf("'%s' ", p.tags[i]);
+	}
+	fputs("\n\n", stdout);
+}
+
+void
+copy_contents(const char *contents, const char *out_path)
+{
+	FILE *f = fopen(out_path, "w");
+	if (!f)
+		return;
+
+	fputs(contents, f);
+	fclose(f);
+}
+
+void
+menu_help(const struct opt_struct *opts)
+{
+}
+
+struct opt_struct
+menu_prompt(const char *prompt, struct opt_struct *opts, int *error)
+{
+	int counter = 1;
+	char buf[BUFSIZ];
+	char *hl, *uhl;
+
+	if (!prompt)
+		prompt = "What now";
+	hl = (usecol) ? COLOR_BOLD COLOR_BLUE : "";
+	uhl = (usecol) ? COLOR_RESET : "";
+
+	puts("*** Commands ***");
+	for (struct opt_struct *cur = opts; cur->longname; cur++) {
+		printf("%d: %s%c%s%s       ", counter, hl, cur->shorthand, uhl, cur->longname+1);
+		if (counter % 4 == 0)
+			putchar('\n');
+		counter++;
+	}
+	putchar('\n');
+	printf("%s%s%s> ", hl, prompt, uhl);
+	if (!fgets(buf, BUFSIZ, stdin)) {
+		*error = 1;
+		return (struct opt_struct){};
+	}
+	strip_newline(buf);
+
+	for (struct opt_struct *cur = opts; cur->longname; cur++) {
+		if (tolower(buf[0]) == cur->shorthand || strcmp(buf, cur->longname) == 0) {
+			return *cur;
+		}
+	}
+
+	fprintf(stderr, "Unknown option: '%s'\n\n", buf);
+	return (struct opt_struct){};
+}
+
+int
+confirm_prompt(const char *prompt)
+{
+	char c;
+
+	if (!prompt)
+		prompt = "Please confirm [Y/N]: ";
+
+	printf("%s", prompt);
+	for (;;) {
+		c = tolower(getchar());
+		switch (c) {
+		case 'y':
+			return 1;
+		case 'n':
+			return 0;
+		default:
+			fprintf(stderr, "%s: unexpected response '%c'\n", argv0, c);
+			break;
+		}
+	}
+}
+
+int
+menu_main(struct post_struct *p, char *file, const char *editor)
+{
+	int quit = 0;
+	const char *trail;
+	char fbuf[PATH_MAX];
+	struct opt_struct choice;
+	struct opt_struct opts[] = {
+		{
+			.longname = "publish",
+			.shorthand = 'p',
+			.help = "Confirm and publish"
+		},
+		{
+			.longname = "draft",
+			.shorthand = 'd',
+			.help = "Confirm and publish as draft",
+		},
+		{
+			.longname = "save",
+			.shorthand = 's',
+			.help = "Save markdown locally",
+		},
+		{
+			.longname = "edit",
+			.shorthand = 'e',
+			.help = "Go back and edit",
+		},
+		opt_help,
+		opt_quit,
+		NULL,
+	};
+
+	if (!p)
+		return 1;
+
+	if (p->title)
+		trail = p->title;
+	else if (!(trail = strrchr(file, '/')))
+		trail = file;
+	else
+		trail++;	/* slice off forward slash */
+
+	print_post(*p);
+	choice = menu_prompt("Action", opts, &quit);
+	if (quit)
+		return quit;
+
+	switch (choice.shorthand) {
+	case 'p':
+		/* TODO: Publish */
+		break;
+	case 'd':
+		/* TODO: Publish as draft */
+		break;
+	case 's':
+		snprintf(fbuf, PATH_MAX, "./%s", trail);
+		copy_contents(p->raw_content, fbuf);
+		printf("draft saved to %s\n", fbuf);
+		break;
+	case 'c':
+		/* TODO: Change details */
+	case 'e':
+		spawn_editor(editor, &file);
+		load_post_file(p, file);
+		break;
+	case 'q':
+		quit = 1;
+		break;
+	}
+	putchar('\n');
+
+	return quit;
+}
+
 /*
  * uwp-post: compose and publish a post from your command line
  */
@@ -104,10 +301,11 @@ main(int argc, char **argv)
 	Site s;
 	SiteList *l;
 	char *editor, *file = NULL;
-	int stat;
+	int stat, done = 0;
 	int eskip = 0;
 
 	setlocale(LC_ALL, "");
+	usecol = isatty(STDOUT_FILENO);
 	memset(&post, 0, sizeof(struct post_struct));
 
 	ARGBEGIN {
@@ -118,6 +316,9 @@ main(int argc, char **argv)
 			return 1;
 		}
 		eskip = 1;
+		break;
+	case 'e':
+		eskip = 0;
 		break;
 	case 't':
 		post.title = EARGF(usage());
@@ -148,13 +349,22 @@ main(int argc, char **argv)
 	}
 
 	if (!eskip) {
-		if ((stat = spawn_editor(editor, file))) {
+		if ((stat = spawn_editor(editor, &file))) {
 			fprintf(stderr, "%s: post abort: editor returned %d\n", argv0,
 				stat);
+			return stat;
 		}
 	}
+	if (!post.raw_content)
+		load_post_file(&post, file);
+
+	do {
+		done = menu_main(&post, file, editor);
+	} while (!done);
 
 	free(post.raw_content);
 	free(post.content);
+	if (!eskip)
+		unlink(file);
 	return 0;
 }

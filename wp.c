@@ -242,6 +242,20 @@ wp_parse_post(WPPost *p, struct json_value_s *text)
 					p->type = Unknown;
 				}
 			}
+		/* publish, future, draft, pending, private */
+		} else if (strcmp(cmp, "status") == 0) {
+				if (strcmp(sobj->string, "publish") == 0) {
+					p->status = StatusPublish;
+				} else if (strcmp(sobj->string, "draft") == 0) {
+					p->status = StatusDraft;
+				} else if (strcmp(sobj->string, "pending") == 0) {
+					p->status = StatusPending;
+				} else if (strcmp(sobj->string, "private") == 0) {
+					p->status = StatusPrivate;
+				} else {
+					p->status = StatusPublish;
+				}
+
 		}
 
 
@@ -249,4 +263,10 @@ wp_parse_post(WPPost *p, struct json_value_s *text)
 	}
 
 	return 1;
+}
+
+int
+wp_create_post(WPPost p)
+{
+	return 0;
 }

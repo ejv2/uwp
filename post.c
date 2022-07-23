@@ -43,6 +43,7 @@ const struct opt_struct opt_quit = {
 struct post_struct {
 	char *title, *slug;
 	char *raw_content, *content;
+	WPPostType class;
 
 	char *categories[5];
 	char *tags[20];
@@ -121,6 +122,8 @@ spawn_editor(const char *editor, char **file)
 void
 print_post(struct post_struct p)
 {
+	const char *class;
+
 	if (p.title) { printf("Title: %s\n", p.title); }
 	else         { printf("Title: (empty)\n"); }
 
@@ -137,7 +140,20 @@ print_post(struct post_struct p)
 	for (int i = 0; p.tags[i] && i < LENGTH(p.tags); i++) {
 		printf("'%s' ", p.tags[i]);
 	}
-	fputs("\n\n", stdout);
+	putchar('\n');
+
+	switch (p.class) {
+	case Post:
+		class = "post";
+		break;
+	case Page:
+		class = "page";
+		break;
+	default:
+		class = "misc";
+		break;
+	}
+	printf("Type: %s\n\n", class);
 }
 
 void

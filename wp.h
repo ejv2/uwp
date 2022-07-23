@@ -27,6 +27,13 @@ typedef enum {
 	Unknown
 } WPPostType;
 
+typedef enum {
+	StatusPublish,
+	StatusDraft,
+	StatusPending,
+	StatusPrivate
+} WPPostStatus;
+
 /* represents both categories and tags, as both share a format */
 typedef struct {
 	long id;
@@ -39,6 +46,7 @@ typedef struct {
 	const char *title, *content, *excerpt;
 	const char *date, *modified;
 	WPPostType type;
+	WPPostStatus status;
 } WPPost;
 
 int wp_init(WP *wp, const Site *site);
@@ -47,3 +55,4 @@ const char *wp_check_errors(struct json_object_s *root);
 void wp_destroy(WP *wp);
 
 int wp_parse_post(WPPost *p, struct json_value_s *text);
+int wp_create_post(WPPost p);

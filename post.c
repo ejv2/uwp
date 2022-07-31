@@ -212,6 +212,7 @@ menu_prompt(const char *prompt, struct opt_struct *opts, int *error)
 int
 confirm_prompt(const char *prompt)
 {
+	int ret;
 	char c;
 
 	if (!prompt)
@@ -222,14 +223,23 @@ confirm_prompt(const char *prompt)
 		c = tolower(getchar());
 		switch (c) {
 		case 'y':
-			return 1;
+			ret = 1;
+			goto out;
 		case 'n':
-			return 0;
+			ret = 0;
+			goto out;
 		default:
 			fprintf(stderr, "%s: unexpected response '%c'\n", argv0, c);
 			break;
 		}
 	}
+
+out:
+	/* Drain stdin to prevent reads by other menus */
+	do {
+		c = getchar();
+	} while (c != '\n');
+	return ret;
 }
 
 int

@@ -48,6 +48,10 @@ struct post_struct {
 	char *categories[5];
 	char *tags[20];
 } post;
+struct post_ref {
+	char **buf;
+	size_t buflen;
+};
 char *argv0;
 int usecol = 1;
 
@@ -64,12 +68,25 @@ usage()
 	exit(1);
 }
 
+static void
+__mdprocess(const MD_CHAR *in, MD_SIZE len, void *ptr)
+{
+	struct post_ref *ref = ptr;
+	*ref->buf = realloc(*ref->buf, sizeof(MD_CHAR) * (ref->buflen + len));
+	memcpy(*ref->buf + ref->buflen, in, sizeof(MD_CHAR) * len);
+	ref->buflen += sizeof(MD_CHAR) * len;
+}
+
 int
 load_post_file(struct post_struct *p, const char *path)
 {
 	const int chunk = 70;
 	int chunks = 1, read = 0, thisread;
 	FILE *f;
+	struct post_ref ref = (struct post_ref){
+		.buf = &p->content,
+		.buflen = 0
+	};
 
 	if (!(f = fopen(path, "r")))
 		return 0;
@@ -83,6 +100,15 @@ load_post_file(struct post_struct *p, const char *path)
 	}
 	p->raw_content = realloc(p->raw_content, read+1);
 	p->raw_content[read] = 0;
+
+	p->content = NULL;
+	if (md_html(p->raw_content, read, &__mdprocess, &ref, MD_FLAG_UNDERLINE,
+		    MD_HTML_FLAG_SKIP_UTF8_BOM |
+			    MD_HTML_FLAG_VERBATIM_ENTITIES) < 0) {
+		fprintf(stderr, "%s: warning: markdown format error\n", argv0);
+		return 0;
+	}
+	printf("%s\n", p->content);
 
 	fclose(f);
 	return 1;

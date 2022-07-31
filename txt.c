@@ -35,7 +35,7 @@ void strip_html(char *buf)
 
 		if (*ptr == html_close) {
 			hend = ptr;
-			memmove(hbegin, hend+1, endptr-(hend));
+			memmove(hbegin, hend+1, endptr-hend);
 			ptr = hbegin-1;
 		}
 	}

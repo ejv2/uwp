@@ -55,6 +55,12 @@ void
 usage()
 {
 	fprintf(stderr, "%s: usage\n", argv0);
+	fprintf(stderr, "-f:\tuse file for content\n");
+	fprintf(stderr, "-e:\tskip editing\n");
+	fprintf(stderr, "-n:\tpost a page, not a post\n");
+	fprintf(stderr, "-t:\tpost title (default: empty)\n");
+	fprintf(stderr, "-n:\tpost slug (default: autogenerate)\n");
+	fprintf(stderr, "-u:\tthis message\n");
 	exit(1);
 }
 
@@ -266,6 +272,11 @@ menu_main(struct post_struct *p, char *file, const char *editor)
 			.help = "Save markdown locally",
 		},
 		{
+			.longname = "change details",
+			.shorthand = 'c',
+			.help = "Go back and edit",
+		},
+		{
 			.longname = "edit",
 			.shorthand = 'e',
 			.help = "Go back and edit",
@@ -293,9 +304,11 @@ menu_main(struct post_struct *p, char *file, const char *editor)
 	switch (choice.shorthand) {
 	case 'p':
 		/* TODO: Publish */
+		fputs("Not implemented", stderr);
 		break;
 	case 'd':
 		/* TODO: Publish as draft */
+		fputs("Not implemented", stderr);
 		break;
 	case 's':
 		snprintf(fbuf, PATH_MAX, "./%s", trail);
@@ -304,6 +317,8 @@ menu_main(struct post_struct *p, char *file, const char *editor)
 		break;
 	case 'c':
 		/* TODO: Change details */
+		fputs("Not implemented", stderr);
+		break;
 	case 'e':
 		spawn_editor(editor, &file);
 		load_post_file(p, file);
@@ -347,7 +362,13 @@ main(int argc, char **argv)
 		eskip = 0;
 		break;
 	case 't':
-		post.title = EARGF(usage());
+		post.title = strdup(EARGF(usage()));
+		break;
+	case 'p':
+		post.class = Page;
+		break;
+	case 'n':
+		post.slug = strdup(EARGF(usage()));
 		break;
 	case 'u':
 		usage();
@@ -388,6 +409,8 @@ main(int argc, char **argv)
 		done = menu_main(&post, file, editor);
 	} while (!done);
 
+	free(post.title);
+	free(post.slug);
 	free(post.raw_content);
 	free(post.content);
 	if (!eskip)

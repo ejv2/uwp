@@ -2,7 +2,6 @@
 
 #include <curl.h>
 #include <locale.h>
-#include <wchar.h>
 
 #include "json.h"
 #include "conf.h"

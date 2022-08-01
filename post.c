@@ -108,7 +108,6 @@ load_post_file(struct post_struct *p, const char *path)
 		fprintf(stderr, "%s: warning: markdown format error\n", argv0);
 		return 0;
 	}
-	printf("%s\n", p->content);
 
 	fclose(f);
 	return 1;

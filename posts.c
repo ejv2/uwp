@@ -105,7 +105,7 @@ posts_list(WP *wp, int page, int results, int showexcerpt, int showcont,
 	resp = wp_request(wp, ep);
 	if (resp.success < 0) {
 		fprintf(stderr, "%s: posts: request failed\n", argv0);
-		goto out;
+		return 0;
 	}
 	if (resp.parse->type != json_type_array) {
 		if (resp.parse->type == json_type_object) {
@@ -117,6 +117,7 @@ posts_list(WP *wp, int page, int results, int showexcerpt, int showcont,
 			fprintf(stderr, "%s: posts: malformed response\n",
 				argv0);
 		}
+		ret = 0;
 		goto out;
 	}
 

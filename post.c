@@ -91,14 +91,14 @@ load_post_file(struct post_struct *p, const char *path)
 	if (!(f = fopen(path, "r")))
 		return 0;
 
-	p->raw_content = calloc(sizeof(char), chunk+1);
-	while ((thisread = fread(p->raw_content+read, sizeof(char), chunk - (read % chunk), f))) {
+	p->raw_content = calloc(sizeof(char), chunk + 1);
+	while ((thisread = fread(p->raw_content + read, sizeof(char), chunk - (read % chunk), f))) {
 		read += thisread;
-		if (read == chunks*chunk) {
-			p->raw_content = realloc(p->raw_content, (++chunks)*chunk+1);
+		if (read == chunks * chunk) {
+			p->raw_content = realloc(p->raw_content, (++chunks) * chunk + 1);
 		}
 	}
-	p->raw_content = realloc(p->raw_content, read+1);
+	p->raw_content = realloc(p->raw_content, read + 1);
 	p->raw_content[read] = 0;
 
 	p->content = NULL;
@@ -217,7 +217,7 @@ menu_prompt(const char *prompt, struct opt_struct *opts, int *error)
 
 	puts("*** Commands ***");
 	for (struct opt_struct *cur = opts; cur->longname; cur++) {
-		printf("%d: %s%c%s%s       ", counter, hl, cur->shorthand, uhl, cur->longname+1);
+		printf("%d: %s%c%s%s       ", counter, hl, cur->shorthand, uhl, cur->longname + 1);
 		if (counter % 4 == 0)
 			putchar('\n');
 		counter++;
